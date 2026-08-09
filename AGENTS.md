@@ -94,3 +94,10 @@ Geyser 2.11.x 实体系统大重构（`EntityDefinition` 已删除），新旧�
 - 冒烟测试目录 `test-servers/`（约 450MB，含各端日志），不需要时可整个删除
 - frpc 二进制由 `~/frp` 源码 `make frpc` 编译（`~/frp/bin/frpc`）；隧道配置 `test-servers/frpc.toml`（frps: mc.lemwood.cn:7000，token 认证，UDP 19133 → 本地 Geyser 19133）
 - 在线测试环境：Paper 端以 nohup 常驻运行时，基岩客户端可通过 `mc.lemwood.cn:19133` 进服
+
+## 发布渠道（2026-08-09）
+
+- GitHub Release：`leemwood/GeyserPlus`，tag `v2.1.0`，5 个 jar
+- **Modrinth 项目 `geyserplus`**：项目 id `MMHzAVoW`，账号 ning-g-mo，v2.1.0 四平台版本已上传并提交审核（status: processing）。版本结构沿用上游惯例：同一 `version_number` 按 loader 分 4 个版本（paper/purpur/spigot、velocity、bungeecord/waterfall、geyser）——`PluginVersion` 的版本检查依赖这个结构
+- 发布脚本在 `test-servers/modrinth_*.py`（token 已擦除，复用时从环境变量读）
+- Modrinth PAT 由用户在会话中直接提供，**不要写入仓库/记忆文件**
