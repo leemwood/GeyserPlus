@@ -96,7 +96,7 @@ subprojects {
                 expand(
                         "version" to version,
                         "id" to "geyserextras",
-                        "name" to "GeyserExtras"
+                        "name" to "GeyserPlus"
                 )
             }
         }

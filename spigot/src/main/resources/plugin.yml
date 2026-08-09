@@ -10,7 +10,7 @@ softdepend:
 website: geyserextras.letsgoaway.dev
 commands:
   geyserextras:
-    description: Open the GeyserExtras menu.
+    description: Open the GeyserPlus menu.
     usage: /<command>
     aliases:
       - ge

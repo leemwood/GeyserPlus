@@ -1,8 +1,10 @@
-# NOTICE: v2.0.0 IS NOW IN BETA!
+# GeyserPlus
 
-You can view 2.0's WIP wiki here: https://geyserextras.letsgoaway.dev/
+> **GeyserPlus** 是 [GeyserExtras](https://github.com/GeyserExtras/GeyserExtras) 的社区延续版。上游仓库已于 2026-06-19 归档，本 fork 继续维护并适配新版 Geyser（当前支持 **Geyser 2.11.1 / Minecraft 26.x**）。
+>
+> **GeyserPlus** is a community continuation of [GeyserExtras](https://github.com/GeyserExtras/GeyserExtras). The upstream repository was archived on 2026-06-19; this fork keeps it maintained and up to date with recent Geyser releases (currently **Geyser 2.11.1 / Minecraft 26.x**).
 
-# GeyserExtras
+# GeyserExtras (upstream README)
 A plugin which attempts to unify features for Bedrock Edition players on Java Edition Servers with GeyserMC, aswell as other handy features for Bedrock Players.
 
 [![CodeFactor](https://www.codefactor.io/repository/github/geyserextras/geyserextras/badge/master)](https://www.codefactor.io/repository/github/geyserextras/geyserextras/overview/master)

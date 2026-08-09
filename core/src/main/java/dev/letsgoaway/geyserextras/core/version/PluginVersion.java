@@ -17,7 +17,7 @@ import static dev.letsgoaway.geyserextras.core.GeyserExtras.GE;
 import static dev.letsgoaway.geyserextras.core.GeyserExtras.SERVER;
 
 public class PluginVersion {
-    public static final String GE_VERSION = "2.0.0-BETA-11";
+    public static final String GE_VERSION = "2.1.0";
 
     public static String latestVersion = "";
     public static String latestVersionModrinthID = "";
@@ -29,10 +29,10 @@ public class PluginVersion {
         }
 
         try {
-            URL url = new URL("https://api.modrinth.com/v2/project/geyserextras/version");
+            URL url = new URL("https://api.modrinth.com/v2/project/geyserplus/version");
             URLConnection request = url.openConnection();
             request.setConnectTimeout(5000);
-            request.setRequestProperty("User-Agent", "GeyserExtras/GeyserExtras/" + GE_VERSION);
+            request.setRequestProperty("User-Agent", "leemwood/GeyserPlus/" + GE_VERSION);
             request.connect();
             JsonElement root = JsonParser.parseReader(new InputStreamReader((InputStream) request.getContent()));
 
@@ -61,11 +61,11 @@ public class PluginVersion {
 
         new Thread(() -> {
             if (checkForUpdate()) {
-                SERVER.warn("There is a new update to GeyserExtras!");
+                SERVER.warn("There is a new update to GeyserPlus!");
                 SERVER.warn("You are on version " + GE_VERSION + " but the latest version is " + latestVersion + ".");
-                SERVER.warn("Download & Changelog: https://modrinth.com/plugin/geyserextras/version/" + latestVersionModrinthID);
+                SERVER.warn("Download & Changelog: https://modrinth.com/plugin/geyserplus/version/" + latestVersionModrinthID);
             } else {
-                SERVER.warn("GeyserExtras is on the latest version.");
+                SERVER.warn("GeyserPlus is on the latest version.");
             }
         }).start();
     }

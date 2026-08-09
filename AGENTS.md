@@ -2,12 +2,14 @@
 
 ## 项目概述
 
-GeyserExtras 是为 GeyserMC（Java↔基岩互通代理）提供附加功能的插件/扩展，多模块 Gradle（Kotlin DSL）项目：
+**项目已改名 GeyserPlus（2026-08-09，v2.1.0 起）**：上游归档后本 fork 独立维护。展示名/jar 名/仓库名改为 GeyserPlus（仓库 `leemwood/GeyserPlus`），但 **plugin id 仍为 `geyserextras`**（命令 `/geyserextras`、配置目录、扩展 id 均不变，老用户兼容）。版本检查（`PluginVersion`）指向未来的 Modrinth 项目 slug `geyserplus`（尚不存在时检查静默跳过）。
 
-- `core/` — 主要逻辑，产物 `GeyserExtras.jar`
-- `extension/` — Geyser Extension 形态（`extension.yml`，`api: 2.9.0`）
+GeyserPlus（原 GeyserExtras）是为 GeyserMC（Java↔基岩互通代理）提供附加功能的插件/扩展，多模块 Gradle（Kotlin DSL）项目：
+
+- `core/` — 主要逻辑，产物 `GeyserPlus.jar`
+- `extension/` — Geyser Extension 形态（`extension.yml`，`api: 2.11.0`）
 - `spigot/` / `velocity/` / `bungee/` — 各平台插件形态
-- 本仓库是 `leemwood/GeyserExtras`，上游 `GeyserExtras/GeyserExtras`（origin/upstream 均已配置）
+- 本仓库是 `leemwood/GeyserPlus`（原 `leemwood/GeyserExtras`），上游 `GeyserExtras/GeyserExtras` 已归档
 
 ## 构建与环境
 
@@ -33,9 +35,10 @@ GeyserExtras 是为 GeyserMC（Java↔基岩互通代理）提供附加功能的
 
 ## 上游动态
 
-- 上游 master 最新即本地 HEAD `d49ad51`（2026-03-14，Merge PR #71），本地无落后
-- 唯一新版适配工作：**PR #75 "26.1 Port"**（mas6y6，未合并）：目标 Geyser core 2.10.0-SNAPSHOT / MC 26.1.2 / Java 25，41 文件 +350/−608，混有 gradle 大重构与 neoforge 骨架，建议只提取 `core/` 下 API 适配部分（约 ±30 行）参考，不要整体合并
-- 兼容性问题 issue：#69（NoSuchMethodError）、#72、#73（请求更新 26.1.2）、#47
+- **上游 GeyserExtras/GeyserExtras 已于 2026-06-19 被作者归档（read-only）**，无法开 PR、issue；README 无迁移说明。本 fork 实质上成为活跃维护线
+- 上游 master 最终提交即 `d49ad51`（2026-03-14，Merge PR #71）
+- PR #75 "26.1 Port"（mas6y6，目标 2.10.0/26.1.2）随归档永久未合并；其 blockdisplay 适配基于 2.10.0，2.11.1 需按本文件"实体系统新 API 映射"再改
+- 兼容性问题 issue（#69、#72、#73、#47）已无法回复；本 fork 的 2.11.1 适配提交 `23a2999` 已覆盖这些问题
 
 ## 代码结构风险图（升级工作量评估）
 
