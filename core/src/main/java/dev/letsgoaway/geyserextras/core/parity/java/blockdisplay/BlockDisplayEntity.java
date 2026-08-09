@@ -8,15 +8,17 @@ import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.packet.AnimateEntityPacket;
 import org.cloudburstmc.protocol.bedrock.packet.MoveEntityDeltaPacket;
-import org.geysermc.geyser.entity.EntityDefinition;
+import org.geysermc.geyser.api.util.Identifier;
+import org.geysermc.geyser.entity.BedrockEntityDefinition;
+import org.geysermc.geyser.entity.EntityTypeBase;
+import org.geysermc.geyser.entity.VanillaEntityType;
+import org.geysermc.geyser.entity.spawn.EntitySpawnContext;
 import org.geysermc.geyser.entity.type.Entity;
 import org.geysermc.geyser.entity.type.Tickable;
 import org.geysermc.geyser.item.Items;
-import org.geysermc.geyser.item.type.BlockItem;
 import org.geysermc.geyser.item.type.Item;
 import org.geysermc.geyser.level.block.type.Block;
 import org.geysermc.geyser.level.block.type.BlockState;
-import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.MetadataType;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.MetadataTypes;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.type.IntEntityMetadata;
@@ -24,7 +26,6 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.type.EntityType;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.UUID;
 
 public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickable {
     private static final DecimalFormat format = new DecimalFormat("#.###");
@@ -35,23 +36,23 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
     );
     private String animationExpression = "";
 
-    public BlockDisplayEntity(GeyserSession session, int entityId, long geyserId, UUID uuid, EntityDefinition<?> definition, Vector3f position, Vector3f motion, float yaw, float pitch, float headYaw) {
-        super(session, entityId, geyserId, uuid, definition, position, motion, yaw, pitch, headYaw);
+    public BlockDisplayEntity(EntitySpawnContext context) {
+        super(context);
     }
 
-    public static EntityDefinition<BlockDisplayEntity> buildEntityDef() {
-        EntityDefinition<Entity> entityBase = EntityDefinition.builder(Entity::new)
+    public static VanillaEntityType<BlockDisplayEntity> buildEntityDef() {
+        EntityTypeBase<Entity> entityBase = EntityTypeBase.baseBuilder(Entity.class)
                 .addTranslator(MetadataTypes.BYTE, Entity::setFlags)
                 .addTranslator(MetadataTypes.INT, Entity::setAir) // Air/bubbles
-                .addTranslator(MetadataTypes.OPTIONAL_COMPONENT, Entity::setDisplayName)
-                .addTranslator(MetadataTypes.BOOLEAN, Entity::setDisplayNameVisible)
+                .addTranslator(MetadataTypes.OPTIONAL_COMPONENT, Entity::setCustomName)
+                .addTranslator(MetadataTypes.BOOLEAN, Entity::setCustomNameVisible)
                 .addTranslator(MetadataTypes.BOOLEAN, Entity::setSilent)
                 .addTranslator(MetadataTypes.BOOLEAN, Entity::setGravity)
                 .addTranslator(MetadataTypes.POSE, (entity, entityMetadata) -> entity.setPose(entityMetadata.getValue()))
                 .addTranslator(MetadataTypes.INT, Entity::setFreezing)
                 .build();
 
-        EntityDefinition<BlockDisplayBaseEntity> displayBase = EntityDefinition.inherited(BlockDisplayBaseEntity::new, entityBase)
+        EntityTypeBase<BlockDisplayBaseEntity> displayBase = EntityTypeBase.baseInherited(BlockDisplayBaseEntity.class, entityBase)
                 .addTranslator(null) // Interpolation delay
                 .addTranslator(null) // Transformation interpolation duration
                 .addTranslator(null) // Position/Rotation interpolation duration
@@ -69,9 +70,9 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
                 .addTranslator(null) // Glow color override
                 .build();
 
-        return EntityDefinition.inherited(BlockDisplayEntity::new, displayBase)
+        return VanillaEntityType.inherited(BlockDisplayEntity::new, displayBase)
                 .type(EntityType.BLOCK_DISPLAY)
-                .identifier("minecraft:fox")
+                .bedrockDefinition(BedrockEntityDefinition.getVanilla(Identifier.of("minecraft:fox")))
                 .addTranslator(MetadataTypes.BLOCK_STATE, BlockDisplayEntity::setBlock)
                 .build();
     }
@@ -80,9 +81,9 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
     public void spawnEntity() {
         position = position.add(this.getTranslationOffsetSub());
         super.spawnEntity();
-        dirtyMetadata.put(EntityDataTypes.COLLISION_BOX, Vector3f.ZERO);
-        dirtyMetadata.put(EntityDataTypes.WIDTH, 0.0f);
-        dirtyMetadata.put(EntityDataTypes.HEIGHT, 0.0f);
+        metadata.put(EntityDataTypes.COLLISION_BOX, Vector3f.ZERO);
+        metadata.put(EntityDataTypes.WIDTH, 0.0f);
+        metadata.put(EntityDataTypes.HEIGHT, 0.0f);
 
         setFlag(EntityFlag.SILENT, true);
         setFlag(EntityFlag.INVISIBLE, true);
@@ -138,19 +139,19 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
     public void setBlock(IntEntityMetadata entityMetadata) {
         BlockState state = BlockState.of(entityMetadata.getPrimitiveValue());
         Block block = state.block();
-        Item item = BlockItem.byBlock(block);
+        Item item = block.asItem();
         if (item.javaIdentifier().contains("_door") || item.javaIdentifier().contains("_candle")) {
-            setHand(Items.AIR.newItemStack(1, null));
+            setHand(Items.AIR.newItemStack(session, 1, null));
             updateMainHand();
             return;
         }
 
         if (rendersAs2D.contains(block.javaIdentifier().toString())) {
-            setHand(Items.AIR.newItemStack(1, null));
+            setHand(Items.AIR.newItemStack(session, 1, null));
             updateMainHand();
             return;
         }
-        setHand(item.newItemStack(1, null));
+        setHand(item.newItemStack(session, 1, null));
         updateMainHand();
     }
 
@@ -250,10 +251,10 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
 
 
     public void buildScale() {
-        float xzscale = Math.max(getScale().getX(), getScale().getZ());
+        float xzscale = Math.max(getDisplayScale().getX(), getDisplayScale().getZ());
 
 
-        animationExpression += mlVAR("xzscale", xzscale) + mlVAR("yscale", getScale().getY());
+        animationExpression += mlVAR("xzscale", xzscale) + mlVAR("yscale", getDisplayScale().getY());
     }
 
     // this is going to make me lose my mind :D

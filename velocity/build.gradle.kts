@@ -1,7 +1,7 @@
 
 dependencies {
     implementation(project(":core"))
-    compileOnly("org.geysermc.geyser:core:2.9.0-SNAPSHOT")
+    compileOnly("org.geysermc.geyser:core:2.11.1-SNAPSHOT")
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     compileOnly("com.github.retrooper:packetevents-velocity:2.10.0")

@@ -34,7 +34,7 @@ public class DebugSection extends Section {
         menu.add(new Label("Username: " + data.getUsername()));
         menu.add(new Label("Offline ID: " + data.getPlatformOfflineId()));
         menu.add(new Label("Online ID: " + data.getPlatformOnlineId()));
-        menu.add(new Label("Playfab ID: " + data.getPlayFabId()));
+        menu.add(new Label("Playfab ID: " + session.playFabId()));
         menu.add(new Label("Device ID: " + data.getDeviceId()));
         menu.add(new Label("Device Model: " + data.getDeviceModel()));
         menu.add(new Label("GUI Scale: " + data.getGuiScale()));
