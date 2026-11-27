@@ -28,6 +28,8 @@ public class GeyserHandler {
     }
 
     public static void registerUpstream() {
+        Registries.JAVA_PACKET_TRANSLATORS.register(org.geysermc.mcprotocollib.protocol.packet.login.clientbound.ClientboundLoginFinishedPacket.class,
+                new JavaLoginFinishedInjector());
         // Combat sounds
         Registries.JAVA_PACKET_TRANSLATORS.register(ClientboundSoundPacket.class, new JavaSoundInjector());
         Registries.JAVA_PACKET_TRANSLATORS.register(ClientboundSoundEntityPacket.class, new JavaSoundEntityInjector());

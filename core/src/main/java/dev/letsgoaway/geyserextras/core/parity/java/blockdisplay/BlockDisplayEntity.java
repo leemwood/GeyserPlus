@@ -28,8 +28,9 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickable {
+    private static VanillaEntityType<BlockDisplayEntity> definition;
     private static final DecimalFormat format = new DecimalFormat("#.###");
-    private static final List<String> rendersAs2D = List.of(
+    private static final List<Identifier> rendersAs2D = List.of(
             Items.CAMPFIRE.javaIdentifier(),
             Items.IRON_BARS.javaIdentifier(),
             Items.BELL.javaIdentifier()
@@ -41,6 +42,10 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
     }
 
     public static VanillaEntityType<BlockDisplayEntity> buildEntityDef() {
+        if (definition != null) {
+            return definition;
+        }
+
         EntityTypeBase<Entity> entityBase = EntityTypeBase.baseBuilder(Entity.class)
                 .addTranslator(MetadataTypes.BYTE, Entity::setFlags)
                 .addTranslator(MetadataTypes.INT, Entity::setAir) // Air/bubbles
@@ -70,11 +75,13 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
                 .addTranslator(null) // Glow color override
                 .build();
 
-        return VanillaEntityType.inherited(BlockDisplayEntity::new, displayBase)
+        // Geyser's built-in Java registries are frozen before plugins initialize.
+        // JavaAddEntityInjector uses this definition directly when spawning displays.
+        return definition = VanillaEntityType.inherited(BlockDisplayEntity::new, displayBase)
                 .type(EntityType.BLOCK_DISPLAY)
                 .bedrockDefinition(BedrockEntityDefinition.getVanilla(Identifier.of("minecraft:fox")))
                 .addTranslator(MetadataTypes.BLOCK_STATE, BlockDisplayEntity::setBlock)
-                .build();
+                .build(false);
     }
 
     @Override
@@ -140,13 +147,13 @@ public class BlockDisplayEntity extends BlockDisplayBaseEntity implements Tickab
         BlockState state = BlockState.of(entityMetadata.getPrimitiveValue());
         Block block = state.block();
         Item item = block.asItem();
-        if (item.javaIdentifier().contains("_door") || item.javaIdentifier().contains("_candle")) {
+        if (item.javaIdentifier().path().contains("_door") || item.javaIdentifier().path().contains("_candle")) {
             setHand(Items.AIR.newItemStack(session, 1, null));
             updateMainHand();
             return;
         }
 
-        if (rendersAs2D.contains(block.javaIdentifier().toString())) {
+        if (rendersAs2D.contains(block.javaIdentifier())) {
             setHand(Items.AIR.newItemStack(session, 1, null));
             updateMainHand();
             return;

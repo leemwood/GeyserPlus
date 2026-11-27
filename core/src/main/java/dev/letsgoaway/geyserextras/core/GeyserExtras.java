@@ -7,6 +7,7 @@ import dev.letsgoaway.geyserextras.core.cache.Cache;
 import dev.letsgoaway.geyserextras.core.cache.PackCacheUtils;
 import dev.letsgoaway.geyserextras.core.config.ConfigLoader;
 import dev.letsgoaway.geyserextras.core.config.GeyserExtrasConfig;
+import dev.letsgoaway.geyserextras.core.features.skins.LinkedJavaSkin;
 import dev.letsgoaway.geyserextras.core.injectors.GeyserHandler;
 import dev.letsgoaway.geyserextras.core.parity.bedrock.EmoteUtils;
 import dev.letsgoaway.geyserextras.core.preferences.JavaPreferencesData;
@@ -39,6 +40,8 @@ public class GeyserExtras implements EventRegistrar {
     @Getter
     @Setter
     private GeyserExtrasConfig config;
+    @Getter
+    private LinkedJavaSkin linkedJavaSkin;
 
     public GeyserExtras(Server server) {
         GE = this;
@@ -63,6 +66,8 @@ public class GeyserExtras implements EventRegistrar {
         SERVER.log("Loading config...");
         ConfigLoader.load();
         SERVER.onConfigLoad();
+        linkedJavaSkin = new LinkedJavaSkin(this);
+        linkedJavaSkin.initialize();
 
         if (ServerType.isExtension()) {
             GeyserHandler.register();
@@ -82,6 +87,7 @@ public class GeyserExtras implements EventRegistrar {
         // ExtrasPlayer handlers
         geyserApi.eventBus().subscribe(this, SessionLoginEvent.class, this::onSessionLogin);
         geyserApi.eventBus().subscribe(this, SessionJoinEvent.class, this::onSessionJoin);
+        geyserApi.eventBus().subscribe(this, SessionSkinApplyEvent.class, linkedJavaSkin::onSkinApply);
         geyserApi.eventBus().subscribe(this, SessionDisconnectEvent.class, this::onSessionRemove);
 
         // Emote bindings
@@ -128,16 +134,18 @@ public class GeyserExtras implements EventRegistrar {
     }
 
     public void onSessionLogin(SessionLoginEvent ev) {
-
+        linkedJavaSkin.captureBedrock(ev.connection());
     }
 
     public void onSessionJoin(SessionJoinEvent ev) {
         connections.get(ev.connection().xuid()).startGame();
+        linkedJavaSkin.onJoin(ev.connection());
 
     }
 
     public void onSessionRemove(SessionDisconnectEvent ev) {
         GeyserConnection connection = ev.connection();
+        linkedJavaSkin.onDisconnect(connection);
         for (ExtrasPlayer player : connections.values()) {
             GeyserSession session = player.getSession();
             if (session.bedrockUsername().equals(connection.bedrockUsername())) {
@@ -173,6 +181,7 @@ public class GeyserExtras implements EventRegistrar {
     }
 
     public void onGeyserShutdown(GeyserShutdownEvent ignored) {
+        linkedJavaSkin.close();
         autoReconnectAll();
     }
 

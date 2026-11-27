@@ -2,7 +2,6 @@ package dev.letsgoaway.geyserextras.core.features.skinsaver;
 
 import dev.letsgoaway.geyserextras.core.ExtrasPlayer;
 import org.geysermc.geyser.session.auth.BedrockClientData;
-import org.geysermc.geyser.util.FileUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -23,23 +22,23 @@ public class SkinSaver {
             Path skinsFolder = Files.createDirectories(SERVER.getPluginFolder().resolve("skins/" + data.getSkinId().replace(data.getCapeId(), "") + "/"));
 
             File skinFile = skinsFolder.resolve("skin.png").toFile();
-            byte[] skinBytes = Base64.getDecoder().decode(data.getSkinData());
+            byte[] skinBytes = data.getSkinData();
             ImageIO.write(getFromSkinData(data.getSkinImageWidth(), data.getSkinImageHeight(), skinBytes), "png", skinFile);
 
-            String geometryName = new String(Base64.getDecoder().decode(data.getGeometryName()));
-            String geometryData = new String(Base64.getDecoder().decode(data.getGeometryData()));
+            String geometryName = new String(data.getGeometryName(), StandardCharsets.UTF_8);
+            String geometryData = new String(data.getGeometryData(), StandardCharsets.UTF_8);
 
             String rawAnimData = data.getSkinAnimationData();
             if (!rawAnimData.isEmpty() && !rawAnimData.isBlank()) {
-                String animationData = new String(Base64.getDecoder().decode(rawAnimData.getBytes(StandardCharsets.UTF_8)));
+                String animationData = new String(Base64.getDecoder().decode(rawAnimData), StandardCharsets.UTF_8);
                 if (!animationData.isEmpty() && !animationData.isBlank()) {
-                    FileUtils.writeFile(skinsFolder.resolve("skin.animation.json").toFile(), animationData.toCharArray());
+                    Files.writeString(skinsFolder.resolve("skin.animation.json"), animationData);
                 }
             }
 
 
-            FileUtils.writeFile(skinsFolder.resolve("skin.geometry.json").toFile(), geometryData.toCharArray());
-            FileUtils.writeFile(skinsFolder.resolve("skin.geometry_name.json").toFile(), geometryName.toCharArray());
+            Files.writeString(skinsFolder.resolve("skin.geometry.json"), geometryData);
+            Files.writeString(skinsFolder.resolve("skin.geometry_name.json"), geometryName);
             // Capes
             if (!data.getCapeId().isEmpty()) {
                 Path capesFolder = Files.createDirectories(SERVER.getPluginFolder().resolve("capes/" + data.getCapeId() + "/"));

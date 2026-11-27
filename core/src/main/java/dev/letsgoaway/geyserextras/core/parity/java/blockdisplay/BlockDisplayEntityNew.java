@@ -30,7 +30,7 @@ import java.util.List;
 // needs to be fixed and icbf rn so its staying here for now
 public class BlockDisplayEntityNew extends BlockDisplayBaseEntity implements Tickable {
     private static final DecimalFormat format = new DecimalFormat("#.###");
-    private static final List<String> rendersAs2D = List.of(
+    private static final List<Identifier> rendersAs2D = List.of(
             Items.CAMPFIRE.javaIdentifier(),
             Items.IRON_BARS.javaIdentifier(),
             Items.BELL.javaIdentifier()
@@ -78,7 +78,7 @@ public class BlockDisplayEntityNew extends BlockDisplayBaseEntity implements Tic
                 .type(EntityType.BLOCK_DISPLAY)
                 .bedrockDefinition(BedrockEntityDefinition.getVanilla(Identifier.of("minecraft:fox")))
                 .addTranslator(MetadataTypes.BLOCK_STATE, BlockDisplayEntityNew::setBlock)
-                .build();
+                .build(false);
     }
 
     @Override
@@ -144,13 +144,13 @@ public class BlockDisplayEntityNew extends BlockDisplayBaseEntity implements Tic
         BlockState state = BlockState.of(entityMetadata.getPrimitiveValue());
         Block block = state.block();
         Item item = block.asItem();
-        if (item.javaIdentifier().contains("_door") || item.javaIdentifier().contains("_candle")) {
+        if (item.javaIdentifier().path().contains("_door") || item.javaIdentifier().path().contains("_candle")) {
             setHand(Items.AIR.newItemStack(session, 1, null));
             updateMainHand();
             return;
         }
 
-        if (rendersAs2D.contains(block.javaIdentifier().toString())) {
+        if (rendersAs2D.contains(block.javaIdentifier())) {
             setHand(Items.AIR.newItemStack(session, 1, null));
             updateMainHand();
             return;

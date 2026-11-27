@@ -17,7 +17,7 @@ import static dev.letsgoaway.geyserextras.core.GeyserExtras.GE;
 import static dev.letsgoaway.geyserextras.core.GeyserExtras.SERVER;
 
 public class PluginVersion {
-    public static final String GE_VERSION = "2.1.0";
+    public static final String GE_VERSION = "2.2.0";
 
     public static String latestVersion = "";
     public static String latestVersionModrinthID = "";
@@ -32,6 +32,7 @@ public class PluginVersion {
             URL url = new URL("https://api.modrinth.com/v2/project/geyserplus/version");
             URLConnection request = url.openConnection();
             request.setConnectTimeout(5000);
+            request.setReadTimeout(5000);
             request.setRequestProperty("User-Agent", "leemwood/GeyserPlus/" + GE_VERSION);
             request.connect();
             JsonElement root = JsonParser.parseReader(new InputStreamReader((InputStream) request.getContent()));
@@ -45,11 +46,11 @@ public class PluginVersion {
                 if (loadersArray.contains(ServerType.type.name().toLowerCase()) || (ServerType.isExtension() && loadersArray.contains("geyser"))) {
                     latestVersion = version.getAsJsonObject().get("version_number").getAsString();
                     latestVersionModrinthID = version.getAsJsonObject().get("id").getAsString();
-                    return !latestVersion.equals(GE_VERSION);
+                    return Version3.fromString(latestVersion).isNewer(Version3.fromString(GE_VERSION));
                 }
             }
             return false;
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             return false;
         }
     }

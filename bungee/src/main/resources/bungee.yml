@@ -5,4 +5,5 @@ main: dev.letsgoaway.geyserextras.bungee.GeyserExtrasBungee
 depends:
   - "Geyser-BungeeCord"
 softDepends:
+  - "floodgate"
   - "packetevents"

@@ -92,6 +92,14 @@ public final class GeyserExtrasConfig {
             """)
     private boolean enableSkinSaving = false;
 
+    @Comment("""
+            Default skin source for Floodgate-linked accounts: true uses the official Java skin and cape.
+            Players can override this in the Skin and Cape settings menu; false selects their Bedrock appearance.
+            Applies to the linked player's own Bedrock client and other Bedrock viewers.
+            Unlinked players keep their Bedrock appearance. Failed downloads keep the current appearance.
+            """)
+    private boolean useLinkedJavaSkin = false;
+
 
     @Comment("""
             Whether to disable the Paper Doll or not.

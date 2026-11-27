@@ -15,10 +15,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static dev.letsgoaway.geyserextras.core.GeyserExtras.GE;
 import static dev.letsgoaway.geyserextras.core.GeyserExtras.SERVER;
@@ -27,6 +30,11 @@ import static dev.letsgoaway.geyserextras.core.cache.Cache.GSON;
 public class PreferencesData {
     public static Path PREFERENCES_PATH;
     private static PreferencesData DEFAULT;
+    private static final ExecutorService SAVER = Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "GeyserPlus preferences");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private transient final ExtrasPlayer player;
     private transient final GeyserSession session;
@@ -36,6 +44,21 @@ public class PreferencesData {
     public boolean advancedTooltips = false;
 
     public boolean customSkullSkins;
+    @Getter
+    @Setter
+    private volatile Boolean useLinkedJavaSkin;
+    @Getter
+    @Setter
+    private volatile Boolean useLinkedJavaCape;
+
+    public boolean useLinkedJavaSkin(boolean serverDefault) {
+        return useLinkedJavaSkin == null ? serverDefault : useLinkedJavaSkin;
+    }
+
+    public boolean useLinkedJavaCape(boolean skinSource) {
+        // Existing profiles used one setting for both skin and cape.
+        return useLinkedJavaCape == null ? skinSource : useLinkedJavaCape;
+    }
 
     public HashMap<Remappable, Action> remappableActionMap;
     @Getter
@@ -150,17 +173,26 @@ public class PreferencesData {
     public void save() {
         this.update();
         if (GE.getConfig().isEnableGeyserExtrasMenu()) {
-            new Thread(() -> {
-                try (FileWriter writer = new FileWriter(player.getUserPrefs())) {
-                    if (!GSON.toJson(this).equals(GSON.toJson(DEFAULT))) {
-                        GSON.toJson(this, writer);
-                    } else if (player.getUserPrefs().exists()) {
-                        player.getUserPrefs().delete();
+            String snapshot = GSON.toJson(this);
+            boolean defaults = snapshot.equals(GSON.toJson(DEFAULT));
+            Path target = player.getUserPrefs().toPath();
+            SAVER.execute(() -> {
+                try {
+                    if (defaults) {
+                        Files.deleteIfExists(target);
+                    } else {
+                        Path temporary = Files.createTempFile(target.getParent(), target.getFileName().toString(), ".tmp");
+                        try {
+                            Files.writeString(temporary, snapshot);
+                            Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+                        } finally {
+                            Files.deleteIfExists(temporary);
+                        }
                     }
                 } catch (IOException e) {
                     SERVER.warn("Could not save data for player " + player.getBedrockXUID() + "\n" + e.getLocalizedMessage());
                 }
-            }).start();
+            });
         }
     }
 
@@ -168,7 +200,8 @@ public class PreferencesData {
         if (player.getUserPrefs().exists() && GE.getConfig().isEnableGeyserExtrasMenu()) {
             try (FileReader reader = new FileReader(player.getUserPrefs())) {
                 // Copy from because session would be null
-                this.copyFrom(GSON.fromJson(reader, PreferencesData.class));
+                PreferencesData loaded = GSON.fromJson(reader, PreferencesData.class);
+                this.copyFrom(loaded == null ? DEFAULT : loaded);
             } catch (Exception e) {
                 SERVER.warn("Could not load data for player " + player.getBedrockXUID() + ", restoring to default for them.\n" + e.getLocalizedMessage());
 
@@ -199,6 +232,8 @@ public class PreferencesData {
         this.showCoordinates = data.showCoordinates;
         this.advancedTooltips = data.advancedTooltips;
         this.customSkullSkins = data.customSkullSkins;
+        this.useLinkedJavaSkin = data.useLinkedJavaSkin;
+        this.useLinkedJavaCape = data.useLinkedJavaCape;
         this.remappableActionMap = data.remappableActionMap;
         this.settingsMenuForm = data.settingsMenuForm;
         this.enableDoubleClickShortcut = data.enableDoubleClickShortcut;

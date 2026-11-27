@@ -11,6 +11,7 @@ public class Settings {
         if (GE.getConfig().isDebugMode()) {
             return List.of(
                     new VideoSection(),
+                    new SkinSection(),
                     new MenuSection(),
                     new HudSection(),
                     new BindingsSection(),
@@ -21,6 +22,7 @@ public class Settings {
         else {
             return List.of(
                     new VideoSection(),
+                    new SkinSection(),
                     new MenuSection(),
                     new HudSection(),
                     new BindingsSection(),

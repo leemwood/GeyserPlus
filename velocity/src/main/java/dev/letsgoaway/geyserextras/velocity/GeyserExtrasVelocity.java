@@ -46,6 +46,7 @@ import static dev.letsgoaway.geyserextras.core.GeyserExtras.GE;
         id = "geyserextras",
         dependencies = {
                 @Dependency(id = "geyser"),
+                @Dependency(id = "floodgate", optional = true),
                 @Dependency(id = "packetevents", optional = true),
         }
 )

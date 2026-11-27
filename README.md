@@ -2,7 +2,7 @@
 
 A plugin which attempts to unify features for Bedrock Edition players on Java Edition servers with [GeyserMC](https://geysermc.org), as well as other handy features for Bedrock players.
 
-> **GeyserPlus** is a community continuation of [GeyserExtras](https://github.com/GeyserExtras/GeyserExtras). The upstream repository was archived by its author on 2026-06-19 — this fork keeps the plugin maintained and up to date with recent Geyser releases (currently **Geyser 2.11.1 / Minecraft 26.x**).
+> **GeyserPlus** is a community continuation of [GeyserExtras](https://github.com/GeyserExtras/GeyserExtras). The upstream repository was archived by its author on 2026-06-19 — this fork keeps the plugin maintained and up to date with recent Geyser releases (currently **Geyser 2.12.1 / Java 26.3 / Bedrock 26.40–26.66**).
 
 [![GitHub release](https://img.shields.io/github/v/release/leemwood/GeyserPlus?logo=github)](https://github.com/leemwood/GeyserPlus/releases)
 [![Modrinth](https://img.shields.io/modrinth/v/geyserplus?logo=modrinth)](https://modrinth.com/plugin/geyserplus)
@@ -23,7 +23,7 @@ Get the latest release on [GitHub Releases](https://github.com/leemwood/GeyserPl
 
 ### Requirements
 
-- **Geyser 2.11.1** on the same server/proxy
+- **Geyser 2.12.1** on the same server/proxy
 - Java **21+** (note: Minecraft 26.x servers themselves require Java 25)
 - Velocity users: **Velocity 4.0.0+** (older Velocity ships an incompatible adventure version)
 - [Floodgate](https://geysermc.org/download#floodgate) recommended — menus and per-player settings are only available to Floodgate players
@@ -49,6 +49,16 @@ GeyserPlus keeps the original plugin id (`geyserextras`), commands (`/geyserextr
 - Allows saving player skin, geometry and animation data to `GeyserExtras/skins`
 - Accessible menu by double tapping Inventory or typing `/ge`
 
+### Skin and cape preferences
+
+Open `/ge` → Settings → **Skin and Cape**. Linked players can select their Java account's official skin or their Bedrock appearance, and choose the cape source independently. Choices are saved per Bedrock account; `use-linked-java-skin` supplies the default for players without a saved choice. Memory and disk caches preserve validated appearance data across reconnects and server restarts.
+
+Bedrock viewers receive the selected skin, cape and compatible custom geometry, animation and persona data. If the client sends only a cape ID, 21 known mappings (including Aurora) can supply the official texture; submitted cape pixels take priority. This table does not cover every cape. Reconnect after changing your dressing-room skin.
+
+Java viewers use Floodgate's signed skin conversion, which requires the conversion service and local Floodgate event integration. Vanilla Java cannot reproduce Bedrock-only models, persona pieces or animations, and uses the cape bundled in the signed profile rather than arbitrary cross-source combinations. Conversion/download failures may delay Java-side updates.
+
+See [the changelog](CHANGELOG.md) for v2.2.0 changes and compatibility details.
+
 ## Building
 
 ```bash
@@ -56,6 +66,7 @@ GeyserPlus keeps the original plugin id (`geyserextras`), commands (`/geyserextr
 ```
 
 Requires a JDK 21 toolchain. Artifacts land in each module's `build/libs/` (`GeyserPlus*.jar`).
+The shared `geyser_version` property in `gradle.properties` controls the Geyser dependency for all modules.
 
 ## Community
 
